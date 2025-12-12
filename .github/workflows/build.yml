@@ -1,0 +1,31 @@
+name: Build Dylib
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 使用你提到的这个 Action 搭建环境
+      - name: Theos Setup
+        uses: Randomblock1/theos-action@v1
+      
+      # 开始编译
+      - name: Build
+        run: |
+          # 编译命令
+          make package FINALPACKAGE=1
+          
+          # 整理文件：把生成的 dylib 拿出来，方便你下载
+          mkdir -p output
+          # 这里的 .theos/obj/debug/ 路径是 Theos 默认存放 dylib 的地方
+          cp .theos/obj/debug/*.dylib output/
+          
+      # 上传编译结果供你下载
+      - name: Upload Dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyHackedDylib
+          path: output/*.dylib
